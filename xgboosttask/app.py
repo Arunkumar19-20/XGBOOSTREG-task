@@ -49,7 +49,7 @@ def home():
             grlivarea = float(request.form["grlivarea"])
             garagecars = int(request.form["garagecars"])
 
-            # Create DataFrame (MATCH TRAINING ORDER EXACTLY)
+            # Create input in training order
             input_data = pd.DataFrame(
                 [[
                     grlivarea,     # GrLivArea
@@ -60,21 +60,11 @@ def home():
                     yearbuilt,     # YearBuilt
                     lotarea,       # LotArea
                     overallqual    # OverallQual
-                ]],
-                columns=[
-                    "GrLivArea",
-                    "BedroomAbvGr",
-                    "FullBath",
-                    "TotalBsmtSF",
-                    "GarageCars",
-                    "YearBuilt",
-                    "LotArea",
-                    "OverallQual"
-                ]
+                ]]
             )
 
-            # Predict
-            pred = model.predict(input_data)[0]
+            # Predict (convert to numpy)
+            pred = model.predict(input_data.values)[0]
 
             prediction = f"₹ {pred:,.0f}"
 
