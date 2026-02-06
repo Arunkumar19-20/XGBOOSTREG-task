@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
@@ -17,12 +18,26 @@ st.set_page_config(
 
 
 # ---------------------------------
+# Base Directory
+# ---------------------------------
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+# ---------------------------------
 # Load Dataset
 # ---------------------------------
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("milk_quality_data.csv")
+
+    data_path = os.path.join(BASE_DIR, "milk_quality_data.csv")
+
+    if not os.path.exists(data_path):
+        st.error("❌ milk_quality_data.csv not found in project folder")
+        st.stop()
+
+    df = pd.read_csv(data_path)
 
     return df
 
@@ -51,7 +66,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 @st.cache_resource
 def load_model():
-    model = joblib.load("milk_quality_model.pkl")   # Make sure file is in same folder
+
+    model_path = os.path.join(BASE_DIR, "milk_quality_model.pkl")
+
+    if not os.path.exists(model_path):
+        st.error("❌ milk_quality_model.pkl not found in project folder")
+        st.stop()
+
+    model = joblib.load(model_path)
+
     return model
 
 
@@ -59,7 +82,7 @@ model = load_model()
 
 
 # ---------------------------------
-# Accuracy (Using Loaded Model)
+# Accuracy
 # ---------------------------------
 
 y_pred = model.predict(X_test)
@@ -74,21 +97,21 @@ st.markdown(
     """
     <style>
 
-    /* Main background */
+    /* Background */
     .stApp {
         background: linear-gradient(135deg, #667eea, #764ba2);
     }
 
-    /* Main container */
+    /* Main card */
     .block-container {
-        background: rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.15);
         backdrop-filter: blur(12px);
         padding: 2rem;
         border-radius: 20px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     }
 
-    /* Headings */
+    /* Titles */
     h1, h2, h3 {
         color: #ffffff;
         text-align: center;
@@ -117,7 +140,7 @@ st.markdown(
         color: white;
     }
 
-    /* Metrics */
+    /* Metric values */
     [data-testid="stMetricValue"] {
         color: #ffd369;
         font-size: 28px;
@@ -128,7 +151,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 
 # ---------------------------------
