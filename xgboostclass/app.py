@@ -22,7 +22,8 @@ st.set_page_config(
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("/Users/arun/Desktop/XGBOOSTREG-task/xgboostclass/milk_quality_data.csv")
+    df = pd.read_csv("milk_quality_data.csv")
+
     return df
 
 
