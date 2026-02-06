@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>House Price Predictor</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1d2671, #c33764);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 480px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity:0; transform: translateY(20px);}
+            to {opacity:1; transform: translateY(0);}
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            color: #eee;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 2px #ff9f43;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: linear-gradient(to right, #ff512f, #dd2476);
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.95;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            color: #ddd;
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>🏠 House Price Predictor</h1>
+
+    <form method="POST">
+
+        <div class="input-group">
+            <label>Lot Area (sq ft)</label>
+            <input type="number" name="lotarea" required>
+        </div>
+
+        <div class="input-group">
+            <label>Bedrooms</label>
+            <input type="number" name="bedrooms" required>
+        </div>
+
+        <div class="input-group">
+            <label>Bathrooms</label>
+            <input type="number" name="fullbath" required>
+        </div>
+
+        <div class="input-group">
+            <label>Year Built</label>
+            <input type="number" name="yearbuilt" required>
+        </div>
+
+        <div class="input-group">
+            <label>Basement Area (sq ft)</label>
+            <input type="number" name="basement" required>
+        </div>
+
+        <div class="input-group">
+            <label>Overall Quality (1 - 10)</label>
+            <input type="number" name="overallqual" min="1" max="10" required>
+        </div>
+
+        <div class="input-group">
+            <label>Living Area (sq ft)</label>
+            <input type="number" name="grlivarea" required>
+        </div>
+
+        <div class="input-group">
+            <label>Garage Capacity (Cars)</label>
+            <input type="number" name="garagecars" required>
+        </div>
+
+        <button type="submit">🔮 Predict Price</button>
+
+    </form>
+
+    {% if prediction %}
+    <div class="result">
+        💰 Estimated Price: <b>{{ prediction }}</b>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        Built with Flask + XGBoost 🚀
+    </div>
+
+</div>
+
+</body>
+</html>
