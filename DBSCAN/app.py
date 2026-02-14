@@ -1,6 +1,9 @@
 import streamlit as st
 import numpy as np
-import joblib
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
+import os
 
 # =====================================
 # Page Configuration
@@ -31,9 +34,6 @@ h1 {
     height: 3em;
     width: 100%;
 }
-.stNumberInput label {
-    font-weight: bold;
-}
 .result-box {
     padding: 20px;
     border-radius: 10px;
@@ -56,12 +56,15 @@ st.markdown("<h1>🍷 Wine Quality Clustering (DBSCAN)</h1>", unsafe_allow_html=
 st.write("### Enter Wine Chemical Properties")
 
 # =====================================
-# Load Model
+# Load Dataset
 # =====================================
-db_model = joblib.load("db_model.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR, "wine_clustering_data.csv")
+
+df = pd.read_csv(data_path)
 
 # =====================================
-# Input Section (Card Style Layout)
+# Input Section
 # =====================================
 col1, col2, col3 = st.columns(3)
 
@@ -85,52 +88,60 @@ with col3:
     proline = st.number_input("Proline", value=800.0)
 
 # =====================================
-# Prediction Button
+# Prediction
 # =====================================
 if st.button("🚀 Predict Cluster"):
 
-    input_data = np.array([[alcohol, malic_acid, ash, ash_alcanity,
-                            magnesium, total_phenols, flavanoids,
-                            nonflavanoid_phenols, proanthocyanins,
-                            color_intensity, hue, od280, proline]])
+    input_df = pd.DataFrame([[alcohol, malic_acid, ash, ash_alcanity,
+                               magnesium, total_phenols, flavanoids,
+                               nonflavanoid_phenols, proanthocyanins,
+                               color_intensity, hue, od280, proline]],
+                             columns=df.columns)
 
-    try:
-        cluster = db_model.fit_predict(input_data)
+    # Combine original dataset + user input
+    combined_df = pd.concat([df, input_df], ignore_index=True)
 
-        # Professional cluster naming
-        cluster_details = {
-            0: ("🍷 Classic Reserve", "Balanced structure with refined chemical composition."),
-            1: ("🍇 Premium Vintage", "Rich intensity and elevated phenolic content."),
-            2: ("🌿 Elegant Blend", "Smooth profile with moderate characteristics."),
-            -1: ("✨ Rare Signature", "Distinct chemical pattern outside major wine groups.")
-        }
+    # Scale data
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(combined_df)
 
-        name, description = cluster_details.get(
-            cluster[0],
-            ("🍾 Special Selection", "Unique wine profile identified.")
+    # Apply DBSCAN
+    db_model = DBSCAN(eps=2.0, min_samples=5)
+    labels = db_model.fit_predict(scaled_data)
+
+    cluster = labels[-1]   # Get cluster of user input
+
+    # Professional cluster naming
+    cluster_details = {
+        0: ("🍷 Classic Reserve", "Balanced structure with refined chemical composition."),
+        1: ("🍇 Premium Vintage", "Rich intensity and elevated phenolic content."),
+        2: ("🌿 Elegant Blend", "Smooth profile with moderate characteristics."),
+        -1: ("✨ Rare Signature", "Distinct chemical pattern outside major wine groups.")
+    }
+
+    name, description = cluster_details.get(
+        cluster,
+        ("🍾 Special Selection", "Unique wine profile identified.")
+    )
+
+    # Display result
+    if cluster == -1:
+        st.markdown(
+            f"""
+            <div class="result-box error">
+                {name}<br>
+                <span style="font-size:16px;">{description}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
-
-        # Display Result
-        if cluster[0] == -1:
-            st.markdown(
-                f"""
-                <div class="result-box error">
-                    {name}<br>
-                    <span style="font-size:16px;">{description}</span>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(
-                f"""
-                <div class="result-box success">
-                    {name}<br>
-                    <span style="font-size:16px;">{description}</span>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-    except Exception as e:
-        st.error("Model prediction could not be completed.")
+    else:
+        st.markdown(
+            f"""
+            <div class="result-box success">
+                {name}<br>
+                <span style="font-size:16px;">{description}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
